@@ -1,0 +1,31 @@
+version: '2.1'
+
+services:
+ jm:
+  image: epam/sitecore-jenkins-master
+  volumes:
+   - d:\temp:c:\jenkins 
+  mem_limit: 1024m
+
+ js0:
+  build: epam/sitecore-jenkins-slave
+  links: 
+   - jm
+  environment:
+   JENKINS_AGENT_ID: 00
+   JENKINS_MASTER_HOST: jm
+  mem_limit: 2048m
+  
+ js1:
+  build: epam/sitecore-jenkins-slave
+  links: 
+   - jm
+  environment:
+   JENKINS_AGENT_ID: 01
+   JENKINS_MASTER_HOST: jm
+  mem_limit: 2048m
+
+networks:
+ default:
+  external:
+   name: "nat"

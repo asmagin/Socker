@@ -39,14 +39,17 @@ WORKDIR c:/jenkins
 ENV JENKINS_VERSION 2.32.3
 
 RUN Invoke-WebRequest "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/jenkins-war/$env:JENKINS_VERSION/jenkins-war-$env:JENKINS_VERSION.war" -OutFile "$env:TEMP/jenkins.zip" -UseBasicParsing; \
-    Expand-Archive "$env:TEMP/jenkins.zip" -DestinationPath "$env:TEMP/jenkins"; \
-    Copy-Item "$env:TEMP/jenkins/WEB-INF/slave.jar" -DestinationPath "c:/jenkins/slave.jar"; \
+    Expand-Archive "$env:TEMP/jenkins.zip" -Destination "$env:TEMP/jenkins"; \
+    Copy-Item "$env:TEMP/jenkins/WEB-INF/slave.jar" -Destination "c:/jenkins/slave.jar"; \
     Remove-Item "$env:TEMP/jenkins" -Recurse -Force; \
     Remove-Item "$env:TEMP/jenkins.zip" -Force
 
 WORKDIR c:/
 
-ARG BASE_URL  
-ARG SECRET
+ENV JENKINS_MASTER_HOST 'jenkins-master'
+ENV JENKINS_AGENT_ID '00'
 
-ENTRYPOINT ["java", "-jar", ".\\slave.jar"]  
+# Copy Scripts
+ADD scripts /scripts
+
+CMD [ "powershell", "c:/scripts/startup.ps1" ]
