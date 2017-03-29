@@ -1,0 +1,184 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <com.chikli.hudson.plugin.naginator.NaginatorOptOutProperty plugin="naginator@1.17">
+      <optOut>false</optOut>
+    </com.chikli.hudson.plugin.naginator.NaginatorOptOutProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>VERSION</name>
+          <description>Which version to deploy</description>
+          <defaultValue></defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>artfold</name>
+          <description>artifacts folder name</description>
+          <defaultValue>CI_test</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>Aname</name>
+          <description>artifacts path</description>
+          <defaultValue>EPM-ACCL-SFH</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>Ausername</name>
+          <description></description>
+          <defaultValue>epm-accl-sfh</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>Apassword</name>
+          <description></description>
+          <defaultValue>sfh2016</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>hostname</name>
+          <description></description>
+          <defaultValue>ECSA00100E2D</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    <de.pellepelster.jenkins.walldisplay.WallDisplayJobProperty plugin="jenkinswalldisplay@0.6.30"/>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <assignedNode>Jenkins-Slave</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.plugins.powershell.PowerShell plugin="powershell@1.3">
+      <command>###### Download deploy script files from artifactory to working directory
+$username = $env:Ausername
+$password = $env:Apassword
+$VERSION = $env:VERSION
+$artfold = $env:artfold
+$Aname = $env:Aname
+$url = &quot;https://artifactory.epam.com/artifactory/$Aname/$artfold/$VERSION/deploy.ps1&quot;
+$url2 = &quot;https://artifactory.epam.com/artifactory/$Aname/$artfold/$VERSION/deploy.psd1&quot;
+$url3 = &quot;https://artifactory.epam.com/artifactory/$Aname/$artfold/$VERSION/filter-xml-nodes.ps1&quot;
+
+write-host $url 
+
+$webclient = new-object System.Net.WebClient
+$webclient.Credentials = new-object System.Net.NetworkCredential($username, $password)
+
+Write-Output &quot;Downloading file form Artifactory &quot;
+$webclient.DownloadFile($url, &apos;deploy.ps1&apos;)
+Write-Output &quot;Download completed&quot;
+
+write-host $url2 
+
+$webclient = new-object System.Net.WebClient
+$webclient.Credentials = new-object System.Net.NetworkCredential($username, $password)
+
+Write-Output &quot;Downloading file form Artifactory &quot;
+$webclient.DownloadFile($url2, &apos;deploy.psd1&apos;)
+Write-Output &quot;Download completed&quot;
+
+write-host $url3 
+
+$webclient = new-object System.Net.WebClient
+$webclient.Credentials = new-object System.Net.NetworkCredential($username, $password)
+
+Write-Output &quot;Downloading file form Artifactory &quot;
+$webclient.DownloadFile($url3, &apos;filter-xml-nodes.ps1&apos;)
+Write-Output &quot;Download completed&quot;
+
+</command>
+    </hudson.plugins.powershell.PowerShell>
+    <hudson.plugins.powershell.PowerShell plugin="powershell@1.3">
+      <command>.\deploy.ps1 pull-artifacts -version &quot;$env:VERSION&quot; -folder &quot;$env:artfold&quot;
+
+</command>
+    </hudson.plugins.powershell.PowerShell>
+    <hudson.plugins.powershell.PowerShell plugin="powershell@1.3">
+      <command>.\deploy.ps1 unpack-update-packages
+.\deploy.ps1 unpack-files</command>
+    </hudson.plugins.powershell.PowerShell>
+    <hudson.plugins.powershell.PowerShell plugin="powershell@1.3">
+      <command>$website = &quot;.\Website&quot;
+.\filter-xml-nodes.ps1 -source $website -target $website -env dev -role cm -host $env:hostname
+.\deploy.ps1 create-webdeploy-package</command>
+    </hudson.plugins.powershell.PowerShell>
+    <hudson.plugins.powershell.PowerShell plugin="powershell@1.3">
+      <command>.\deploy.ps1 deploy-files -targetserver $env:hostname</command>
+    </hudson.plugins.powershell.PowerShell>
+    <hudson.plugins.powershell.PowerShell plugin="powershell@1.3">
+      <command>.\deploy.ps1 deploy-update-packages -targetserver $env:hostname</command>
+    </hudson.plugins.powershell.PowerShell>
+    <hudson.plugins.powershell.PowerShell plugin="powershell@1.3">
+      <command>.\deploy.ps1 publish-sitecore -targetserver $env:hostname
+
+
+</command>
+    </hudson.plugins.powershell.PowerShell>
+  </builders>
+  <publishers>
+    <au.com.centrumsystems.hudson.plugin.buildpipeline.trigger.BuildPipelineTrigger plugin="build-pipeline-plugin@1.5.2">
+      <configs>
+        <hudson.plugins.parameterizedtrigger.PredefinedBuildParameters plugin="parameterized-trigger@2.30">
+          <properties>VERSION=$VERSION</properties>
+        </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+      </configs>
+      <downstreamProjectNames>3.Deploy-QA</downstreamProjectNames>
+    </au.com.centrumsystems.hudson.plugin.buildpipeline.trigger.BuildPipelineTrigger>
+    <hudson.plugins.emailext.ExtendedEmailPublisher plugin="email-ext@2.41.3">
+      <recipientList>$DEFAULT_RECIPIENTS</recipientList>
+      <configuredTriggers>
+        <hudson.plugins.emailext.plugins.trigger.FailureTrigger>
+          <email>
+            <recipientList></recipientList>
+            <subject>$PROJECT_DEFAULT_SUBJECT</subject>
+            <body>$PROJECT_DEFAULT_CONTENT</body>
+            <recipientProviders>
+              <hudson.plugins.emailext.plugins.recipients.DevelopersRecipientProvider/>
+            </recipientProviders>
+            <attachmentsPattern></attachmentsPattern>
+            <attachBuildLog>false</attachBuildLog>
+            <compressBuildLog>false</compressBuildLog>
+            <replyTo>$PROJECT_DEFAULT_REPLYTO</replyTo>
+            <contentType>project</contentType>
+          </email>
+        </hudson.plugins.emailext.plugins.trigger.FailureTrigger>
+        <hudson.plugins.emailext.plugins.trigger.SuccessTrigger>
+          <email>
+            <recipientList></recipientList>
+            <subject>$PROJECT_DEFAULT_SUBJECT</subject>
+            <body>$PROJECT_DEFAULT_CONTENT</body>
+            <recipientProviders>
+              <hudson.plugins.emailext.plugins.recipients.DevelopersRecipientProvider/>
+            </recipientProviders>
+            <attachmentsPattern></attachmentsPattern>
+            <attachBuildLog>false</attachBuildLog>
+            <compressBuildLog>false</compressBuildLog>
+            <replyTo>$PROJECT_DEFAULT_REPLYTO</replyTo>
+            <contentType>project</contentType>
+          </email>
+        </hudson.plugins.emailext.plugins.trigger.SuccessTrigger>
+      </configuredTriggers>
+      <contentType>default</contentType>
+      <defaultSubject>$DEFAULT_SUBJECT</defaultSubject>
+      <defaultContent>$DEFAULT_CONTENT</defaultContent>
+      <attachmentsPattern></attachmentsPattern>
+      <presendScript>$DEFAULT_PRESEND_SCRIPT</presendScript>
+      <attachBuildLog>false</attachBuildLog>
+      <compressBuildLog>false</compressBuildLog>
+      <replyTo>$DEFAULT_REPLYTO</replyTo>
+      <saveOutput>false</saveOutput>
+      <disabled>false</disabled>
+    </hudson.plugins.emailext.ExtendedEmailPublisher>
+  </publishers>
+  <buildWrappers>
+    <hudson.plugins.ws__cleanup.PreBuildCleanup plugin="ws-cleanup@0.28">
+      <deleteDirs>false</deleteDirs>
+      <cleanupParameter></cleanupParameter>
+      <externalDelete></externalDelete>
+    </hudson.plugins.ws__cleanup.PreBuildCleanup>
+  </buildWrappers>
+</project>
