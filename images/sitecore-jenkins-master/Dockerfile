@@ -4,9 +4,10 @@ FROM epam/jenkins:2.32.2
 SHELL ["powershell", "-NoProfile", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue'; "]
 
 # Install Git
+ENV GIT_VERSION=2.12.2
 RUN New-Item -Path 'c:/git' -Type Directory -ErrorAction SilentlyContinue; \
-    Invoke-WebRequest "https://github.com/git-for-windows/git/releases/download/v2.12.2.windows.1/Git-2.12.2-64-bit.exe" -OutFile "C:/git/install.exe" -UseBasicParsing; \
-    & 'C:/git/install.exe' '/VERYSILENT' '/NORESTART' '/NOCANCEL' '/SP-' '/DIR="c:/git"';
+    Invoke-WebRequest "https://github.com/git-for-windows/git/releases/download/v$env:GIT_VERSION.windows.1/Git-$env:GIT_VERSION-64-bit.exe" -OutFile "$env:TEMP/git.exe" -UseBasicParsing; \
+    & "$env:TEMP/git.exe" '/VERYSILENT' '/NORESTART' '/NOCANCEL' '/SP-' '/DIR="c:/git"';
 
 # Copy Scripts
 ADD scripts /scripts
