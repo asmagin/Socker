@@ -210,6 +210,13 @@ artfold=$artfold</properties>
       <saveOutput>false</saveOutput>
       <disabled>false</disabled>
     </hudson.plugins.emailext.ExtendedEmailPublisher>
+    <hudson.plugins.logparser.LogParserPublisher plugin="log-parser@2.0">
+      <unstableOnWarning>false</unstableOnWarning>
+      <failBuildOnError>true</failBuildOnError>
+      <showGraphs>true</showGraphs>
+      <parsingRulesPath>c:/jenkins/tmp/minimal_rules</parsingRulesPath>
+      <useProjectRule>false</useProjectRule>
+    </hudson.plugins.logparser.LogParserPublisher>
   </publishers>
   <buildWrappers>
     <hudson.plugins.ws__cleanup.PreBuildCleanup plugin="ws-cleanup@0.32">
@@ -218,7 +225,7 @@ artfold=$artfold</properties>
       <externalDelete></externalDelete>
     </hudson.plugins.ws__cleanup.PreBuildCleanup>
     <org.jvnet.hudson.tools.versionnumber.VersionNumberBuilder plugin="versionnumber@1.8.1">
-      <versionNumberString>1.${BUILD_YEAR}.${BUILD_MONTH}.${BUILD_DAY}.${BUILDS_ALL_TIME, XX}</versionNumberString>
+      <versionNumberString>0.0.${BUILD_ID}</versionNumberString>
       <projectStartDate>2016-04-21 04:00:00.0 UTC</projectStartDate>
       <environmentVariableName>VERSION</environmentVariableName>
       <environmentPrefixVariable>Dev</environmentPrefixVariable>

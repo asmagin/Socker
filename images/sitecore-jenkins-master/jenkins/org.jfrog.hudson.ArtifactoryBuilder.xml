@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<org.jfrog.hudson.ArtifactoryBuilder_-DescriptorImpl plugin="artifactory@2.9.2">
+  <useCredentialsPlugin>false</useCredentialsPlugin>
+  <pushToBintrayEnabled>true</pushToBintrayEnabled>
+  <buildInfoProxyEnabled>false</buildInfoProxyEnabled>
+  <buildInfoProxyPort>0</buildInfoProxyPort>
+  <buildInfoProxyCertPublic>c:\jenkins\secrets\jfrog\certs\jfrog.proxy.crt</buildInfoProxyCertPublic>
+  <buildInfoProxyCertPrivate>c:\jenkins\secrets\jfrog\certs\jfrog.proxy.key</buildInfoProxyCertPrivate>
+</org.jfrog.hudson.ArtifactoryBuilder_-DescriptorImpl>
