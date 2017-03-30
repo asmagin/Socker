@@ -12,26 +12,20 @@
         <artifactNumToKeep>-1</artifactNumToKeep>
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
-    <com.chikli.hudson.plugin.naginator.NaginatorOptOutProperty plugin="naginator@1.17">
+    <com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty plugin="gitlab-plugin@1.4.5">
+      <gitLabConnection></gitLabConnection>
+    </com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty>
+    <com.chikli.hudson.plugin.naginator.NaginatorOptOutProperty plugin="naginator@1.17.2">
       <optOut>false</optOut>
     </com.chikli.hudson.plugin.naginator.NaginatorOptOutProperty>
-    <hudson.model.ParametersDefinitionProperty>
-      <parameterDefinitions>
-        <hudson.model.StringParameterDefinition>
-          <name>artfold</name>
-          <description>artifact folder name (BEFORE CHANGING MAKE SURE PSD1 FILE AND DEPLOY PROJECTS CONFIG WERE EDIT)</description>
-          <defaultValue>CI_test</defaultValue>
-        </hudson.model.StringParameterDefinition>
-      </parameterDefinitions>
-    </hudson.model.ParametersDefinitionProperty>
-    <de.pellepelster.jenkins.walldisplay.WallDisplayJobProperty plugin="jenkinswalldisplay@0.6.30"/>
+    <de.pellepelster.jenkins.walldisplay.WallDisplayJobProperty plugin="jenkinswalldisplay@0.6.33"/>
   </properties>
-  <scm class="hudson.plugins.git.GitSCM" plugin="git@2.4.4">
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@3.2.0">
     <configVersion>2</configVersion>
     <userRemoteConfigs>
       <hudson.plugins.git.UserRemoteConfig>
-        <url>git@gitpct.epam.com:epm-accl/sitecore-engx-scaffolding.git</url>
-        <credentialsId>cd6d4211-0b0c-4494-b17f-1782f66d51c4</credentialsId>
+        <url>https://gitpct.epam.com/aliaksandr_smahin/dev-days.git</url>
+        <credentialsId>aliaksandr_smahin</credentialsId>
       </hudson.plugins.git.UserRemoteConfig>
     </userRemoteConfigs>
     <branches>
@@ -43,13 +37,13 @@
     <submoduleCfg class="list"/>
     <extensions/>
   </scm>
-  <assignedNode>Jenkins-Slave</assignedNode>
+  <assignedNode>windows</assignedNode>
   <canRoam>false</canRoam>
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers>
-    <com.cloudbees.jenkins.GitHubPushTrigger plugin="github@1.18.2">
+    <com.cloudbees.jenkins.GitHubPushTrigger plugin="github@1.26.1">
       <spec></spec>
     </com.cloudbees.jenkins.GitHubPushTrigger>
   </triggers>
@@ -82,7 +76,7 @@ $git= $env:GIT_URL
 .\ci\deploy.ps1 pack-update-packages
 </command>
     </hudson.plugins.powershell.PowerShell>
-    <hudson.plugins.parameterizedtrigger.TriggerBuilder plugin="parameterized-trigger@2.30">
+    <hudson.plugins.parameterizedtrigger.TriggerBuilder plugin="parameterized-trigger@2.33">
       <configs>
         <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
           <configs>
@@ -94,13 +88,14 @@ artfold=$artfold</properties>
           <projects>2.Deploy-DEV</projects>
           <condition>ALWAYS</condition>
           <triggerWithNoParameters>false</triggerWithNoParameters>
+          <triggerFromChildProjects>false</triggerFromChildProjects>
           <buildAllNodesWithLabel>false</buildAllNodesWithLabel>
         </hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
       </configs>
     </hudson.plugins.parameterizedtrigger.TriggerBuilder>
   </builders>
   <publishers>
-    <hudson.plugins.warnings.WarningsPublisher plugin="warnings@4.52">
+    <hudson.plugins.warnings.WarningsPublisher plugin="warnings@4.60">
       <healthy></healthy>
       <unHealthy></unHealthy>
       <thresholdLimit>low</thresholdLimit>
@@ -110,7 +105,7 @@ artfold=$artfold</properties>
       <usePreviousBuildAsReference>false</usePreviousBuildAsReference>
       <useStableBuildAsReference>false</useStableBuildAsReference>
       <useDeltaValues>false</useDeltaValues>
-      <thresholds plugin="analysis-core@1.76">
+      <thresholds plugin="analysis-core@1.84">
         <unstableTotalAll></unstableTotalAll>
         <unstableTotalHigh></unstableTotalHigh>
         <unstableTotalNormal></unstableTotalNormal>
@@ -171,12 +166,11 @@ artfold=$artfold</properties>
         <testTimeMargin>3000</testTimeMargin>
       </extraConfiguration>
     </xunit>
-    <hudson.plugins.emailext.ExtendedEmailPublisher plugin="email-ext@2.41.3">
+    <hudson.plugins.emailext.ExtendedEmailPublisher plugin="email-ext@2.57.1">
       <recipientList>$DEFAULT_RECIPIENTS</recipientList>
       <configuredTriggers>
         <hudson.plugins.emailext.plugins.trigger.FailureTrigger>
           <email>
-            <recipientList></recipientList>
             <subject>$PROJECT_DEFAULT_SUBJECT</subject>
             <body>$PROJECT_DEFAULT_CONTENT</body>
             <recipientProviders>
@@ -191,7 +185,6 @@ artfold=$artfold</properties>
         </hudson.plugins.emailext.plugins.trigger.FailureTrigger>
         <hudson.plugins.emailext.plugins.trigger.SuccessTrigger>
           <email>
-            <recipientList></recipientList>
             <subject>$PROJECT_DEFAULT_SUBJECT</subject>
             <body>$PROJECT_DEFAULT_CONTENT</body>
             <recipientProviders>
@@ -210,6 +203,7 @@ artfold=$artfold</properties>
       <defaultContent>$DEFAULT_CONTENT</defaultContent>
       <attachmentsPattern></attachmentsPattern>
       <presendScript>$DEFAULT_PRESEND_SCRIPT</presendScript>
+      <postsendScript></postsendScript>
       <attachBuildLog>false</attachBuildLog>
       <compressBuildLog>false</compressBuildLog>
       <replyTo>$DEFAULT_REPLYTO</replyTo>
@@ -218,12 +212,12 @@ artfold=$artfold</properties>
     </hudson.plugins.emailext.ExtendedEmailPublisher>
   </publishers>
   <buildWrappers>
-    <hudson.plugins.ws__cleanup.PreBuildCleanup plugin="ws-cleanup@0.28">
+    <hudson.plugins.ws__cleanup.PreBuildCleanup plugin="ws-cleanup@0.32">
       <deleteDirs>false</deleteDirs>
       <cleanupParameter></cleanupParameter>
       <externalDelete></externalDelete>
     </hudson.plugins.ws__cleanup.PreBuildCleanup>
-    <org.jvnet.hudson.tools.versionnumber.VersionNumberBuilder plugin="versionnumber@1.6">
+    <org.jvnet.hudson.tools.versionnumber.VersionNumberBuilder plugin="versionnumber@1.8.1">
       <versionNumberString>1.${BUILD_YEAR}.${BUILD_MONTH}.${BUILD_DAY}.${BUILDS_ALL_TIME, XX}</versionNumberString>
       <projectStartDate>2016-04-21 04:00:00.0 UTC</projectStartDate>
       <environmentVariableName>VERSION</environmentVariableName>
@@ -236,39 +230,5 @@ artfold=$artfold</properties>
       <skipFailedBuilds>true</skipFailedBuilds>
       <useAsBuildDisplayName>true</useAsBuildDisplayName>
     </org.jvnet.hudson.tools.versionnumber.VersionNumberBuilder>
-    <org.jfrog.hudson.generic.ArtifactoryGenericConfigurator plugin="artifactory@2.4.7">
-      <deployerCredentialsConfig>
-        <credentials>
-          <username></username>
-          <password></password>
-        </credentials>
-        <credentialsId></credentialsId>
-        <overridingCredentials>false</overridingCredentials>
-      </deployerCredentialsConfig>
-      <resolverCredentialsConfig>
-        <credentials>
-          <username></username>
-          <password></password>
-        </credentials>
-        <credentialsId></credentialsId>
-        <overridingCredentials>false</overridingCredentials>
-      </resolverCredentialsConfig>
-      <deployPattern>${WORKSPACE}/artifacts/packages.zip=&gt;${artfold}/${VERSION}/
-${WORKSPACE}/artifacts/website.zip=&gt;${artfold}/${VERSION}/
-${WORKSPACE}/ci=&gt;${artfold}/${VERSION}/
-
-</deployPattern>
-      <resolvePattern></resolvePattern>
-      <matrixParams></matrixParams>
-      <deployBuildInfo>true</deployBuildInfo>
-      <includeEnvVars>false</includeEnvVars>
-      <envVarsPatterns>
-        <includePatterns></includePatterns>
-        <excludePatterns>*password*,*secret*</excludePatterns>
-      </envVarsPatterns>
-      <discardOldBuilds>false</discardOldBuilds>
-      <discardBuildArtifacts>true</discardBuildArtifacts>
-      <multiConfProject>false</multiConfProject>
-    </org.jfrog.hudson.generic.ArtifactoryGenericConfigurator>
   </buildWrappers>
 </project>

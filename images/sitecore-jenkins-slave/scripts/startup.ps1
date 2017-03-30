@@ -1,5 +1,13 @@
 $ProgressPreference = 'SilentlyContinue'
 
+# SHOW CONTAINER INFO
+$ip = Get-NetAdapter | 
+    Select-Object -First 1 | 
+    Get-NetIPAddress | 
+    Where-Object { $_.AddressFamily -eq "IPv4"} |
+    Select-Object -Property IPAddress | 
+    ForEach-Object { $_.IPAddress }
+
 $ID = 0
 
 if($env:JENKINS_AGENT_ID -match '\d+') {
@@ -19,5 +27,14 @@ switch ($ID)
         9 { $env:SECRET = "eca4e03a04db4faf9fb1ae74fd04ac3ab0890be5912070782509a0056ac4fbe6"}
         default { $env:SECRET = "50821f3fb4129adea445c101ab5e4e12c3338b2c391b5687dab77161a657029b"}
     }
+
+
+Write-Host "= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = " -ForegroundColor Yellow
+Write-Host "JENKINS SLAVE CONTAINER" -ForegroundColor Yellow
+Write-Host ("Started at:     {0}" -f [DateTime]::Now.ToString("yyyy-MMM-dd HH:mm:ss.fff")) -ForegroundColor Yellow
+Write-Host ("Container Name: {0}" -f $env:COMPUTERNAME) -ForegroundColor Yellow
+Write-Host ("Container IP:   {0}" -f $ip) -ForegroundColor Yellow
+Write-Host ("Slave ID:       {0:00}" -f $ID) -ForegroundColor Yellow
+Write-Host "= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = " -ForegroundColor Yellow
 
 & 'java.exe' '-jar' 'c:/jenkins/slave.jar' '-jnlpUrl' ("http://{0}:8080/computer/{1:00}/slave-agent.jnlp" -f $env:JENKINS_MASTER_HOST, $ID) '-secret' $env:SECRET

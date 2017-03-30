@@ -39,7 +39,7 @@
     <de.pellepelster.jenkins.walldisplay.WallDisplayJobProperty plugin="jenkinswalldisplay@0.6.30"/>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
-  <assignedNode>Jenkins-Slave</assignedNode>
+  <assignedNode>windows</assignedNode>
   <canRoam>false</canRoam>
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
