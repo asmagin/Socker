@@ -91,3 +91,4 @@ artifactory
 naginator
 powershell
 versionnumber
+log-parser
