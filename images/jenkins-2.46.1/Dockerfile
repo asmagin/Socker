@@ -13,7 +13,7 @@ VOLUME c:/jenkins
 ENV JAVA_OPTS -Dhudson.footerURL=https://www.epam.com
 
 # jenkins version being bundled in this docker image
-ENV JENKINS_VERSION 2.32.3
+ENV JENKINS_VERSION 2.46.1
 
 # jenkins.war checksum, download will be validated using it
 ENV JENKINS_SHA 3eb599dd78ecf00e5f177ec5c4b1ba4274be4e5f63236da6ac92401a66fa91e8

@@ -1,4 +1,4 @@
-FROM epam/jenkins:2.32.2
+FROM epam/jenkins:2.46.1
 
 # $ProgressPreference will disable download progress info and speed-up download
 SHELL ["powershell", "-NoProfile", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue'; "]
