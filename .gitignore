@@ -227,5 +227,5 @@ dependencies/*
 images/sitecore*/Sitecore
 images/sitecore-jenkins*/**/*.jpi
 
-
-
+images/sitecore-jenkins-slave/win2016/sources/sxs/*
+!/images/sitecore-jenkins-slave/win2016/sources/sxs/readme.md

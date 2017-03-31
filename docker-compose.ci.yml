@@ -5,24 +5,32 @@ services:
     image: epam/sitecore-jenkins-master
     volumes:
       - d:\temp:c:\jenkins 
-    mem_limit: 1024m
+    mem_limit: 2048m
 
   js0:
     image: epam/sitecore-jenkins-slave
     links: 
       - jm
+    depends_on: 
+      - jm
     environment:
       JENKINS_AGENT_ID: 0
       JENKINS_MASTER_HOST: jm
+      TDS_Owner: 'EPAM SYSTEMS'
+      TDS_Key: 'ba1c-x76-jaa-9gfr'
     mem_limit: 2048m
   
   js1:
     image: epam/sitecore-jenkins-slave
     links: 
       - jm
+    depends_on: 
+      - jm
     environment:
       JENKINS_AGENT_ID: 1
       JENKINS_MASTER_HOST: jm
+      TDS_Owner: 'EPAM SYSTEMS'
+      TDS_Key: 'ba1c-x76-jaa-9gfr'
     mem_limit: 2048m
 
 networks:

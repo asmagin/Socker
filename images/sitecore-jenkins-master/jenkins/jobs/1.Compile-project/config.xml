@@ -12,25 +12,18 @@
         <artifactNumToKeep>-1</artifactNumToKeep>
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
-    <com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty plugin="gitlab-plugin@1.4.5">
-      <gitLabConnection></gitLabConnection>
-    </com.dabsquared.gitlabjenkins.connection.GitLabConnectionProperty>
-    <com.chikli.hudson.plugin.naginator.NaginatorOptOutProperty plugin="naginator@1.17.2">
-      <optOut>false</optOut>
-    </com.chikli.hudson.plugin.naginator.NaginatorOptOutProperty>
-    <de.pellepelster.jenkins.walldisplay.WallDisplayJobProperty plugin="jenkinswalldisplay@0.6.33"/>
   </properties>
   <scm class="hudson.plugins.git.GitSCM" plugin="git@3.2.0">
     <configVersion>2</configVersion>
     <userRemoteConfigs>
       <hudson.plugins.git.UserRemoteConfig>
-        <url>https://gitpct.epam.com/aliaksandr_smahin/dev-days.git</url>
-        <credentialsId>aliaksandr_smahin</credentialsId>
+        <url>https://github.com/asmagin/epam-dev-days.git</url>
+        <credentialsId>asmagin</credentialsId>
       </hudson.plugins.git.UserRemoteConfig>
     </userRemoteConfigs>
     <branches>
       <hudson.plugins.git.BranchSpec>
-        <name>*/master</name>
+        <name>*/no-private-packages</name>
       </hudson.plugins.git.BranchSpec>
     </branches>
     <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
@@ -43,56 +36,34 @@
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers>
-    <com.cloudbees.jenkins.GitHubPushTrigger plugin="github@1.26.1">
-      <spec></spec>
-    </com.cloudbees.jenkins.GitHubPushTrigger>
+    <hudson.triggers.SCMTrigger>
+      <spec>H/5 * * * *</spec>
+      <ignorePostCommitHooks>false</ignorePostCommitHooks>
+    </hudson.triggers.SCMTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
   <builders>
-    <hudson.plugins.powershell.PowerShell plugin="powershell@1.3">
-      <command>.\ci\deploy.ps1 restore-nuget
-.\ci\deploy.ps1 build-solution</command>
-    </hudson.plugins.powershell.PowerShell>
+    <org.jenkinsci.plugins.changeassemblyversion.ChangeAssemblyVersion plugin="change-assembly-version-plugin@1.5.1">
+      <versionPattern>${VERSION}</versionPattern>
+      <assemblyFile>**/AssemblyInfo.cs</assemblyFile>
+      <regexPattern></regexPattern>
+      <replacementPattern></replacementPattern>
+    </org.jenkinsci.plugins.changeassemblyversion.ChangeAssemblyVersion>
     <hudson.plugins.powershell.PowerShell plugin="powershell@1.3">
       <command>$VERSION = $env:VERSION
 $commit = $env:GIT_COMMIT
 $branch = $env:GIT_BRANCH
 $git= $env:GIT_URL
 
-.\ci\deploy.ps1 version-file -сommit $commit -branch $branch -git $git -version $VERSION
-</command>
+./ci/deploy.ps1 version-file -сommit $commit -branch $branch -git $git -version $VERSION
+
+./ci/deploy.ps1 restore-nuget
+./ci/deploy.ps1 build-solution
+./ci/deploy.ps1 unit-tests
+./ci/deploy.ps1 code-analysis
+./ci/deploy.ps1 pack-files
+./ci/deploy.ps1 pack-update-packages</command>
     </hudson.plugins.powershell.PowerShell>
-    <hudson.plugins.powershell.PowerShell plugin="powershell@1.3">
-      <command>.\ci\deploy.ps1 code-analysis</command>
-    </hudson.plugins.powershell.PowerShell>
-    <hudson.plugins.powershell.PowerShell plugin="powershell@1.3">
-      <command>.\ci\deploy.ps1 xunit-tests</command>
-    </hudson.plugins.powershell.PowerShell>
-    <hudson.plugins.powershell.PowerShell plugin="powershell@1.3">
-      <command>#.\ci\deploy.ps1 unit-tests </command>
-    </hudson.plugins.powershell.PowerShell>
-    <hudson.plugins.powershell.PowerShell plugin="powershell@1.3">
-      <command>.\ci\deploy.ps1 pack-files
-.\ci\deploy.ps1 pack-update-packages
-</command>
-    </hudson.plugins.powershell.PowerShell>
-    <hudson.plugins.parameterizedtrigger.TriggerBuilder plugin="parameterized-trigger@2.33">
-      <configs>
-        <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
-          <configs>
-            <hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
-              <properties>VERSION=$VERSION
-artfold=$artfold</properties>
-            </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
-          </configs>
-          <projects>2.Deploy-DEV</projects>
-          <condition>ALWAYS</condition>
-          <triggerWithNoParameters>false</triggerWithNoParameters>
-          <triggerFromChildProjects>false</triggerFromChildProjects>
-          <buildAllNodesWithLabel>false</buildAllNodesWithLabel>
-        </hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
-      </configs>
-    </hudson.plugins.parameterizedtrigger.TriggerBuilder>
   </builders>
   <publishers>
     <hudson.plugins.warnings.WarningsPublisher plugin="warnings@4.60">
@@ -129,19 +100,18 @@ artfold=$artfold</properties>
       <includePattern></includePattern>
       <excludePattern></excludePattern>
       <messagesPattern></messagesPattern>
-      <parserConfigurations>
-        <hudson.plugins.warnings.ParserConfiguration>
-          <pattern>resharper.xml</pattern>
-          <parserName>Resharper InspectCode</parserName>
-        </hudson.plugins.warnings.ParserConfiguration>
-      </parserConfigurations>
-      <consoleParsers/>
+      <parserConfigurations/>
+      <consoleParsers>
+        <hudson.plugins.warnings.ConsoleParser>
+          <parserName>MSBuild</parserName>
+        </hudson.plugins.warnings.ConsoleParser>
+      </consoleParsers>
     </hudson.plugins.warnings.WarningsPublisher>
     <xunit plugin="xunit@1.102">
       <types>
         <XUnitDotNetTestType>
           <pattern>*.Tests.xml</pattern>
-          <skipNoTestFiles>false</skipNoTestFiles>
+          <skipNoTestFiles>true</skipNoTestFiles>
           <failIfNotNew>false</failIfNotNew>
           <deleteOutputFiles>true</deleteOutputFiles>
           <stopProcessingIfError>false</stopProcessingIfError>
@@ -166,57 +136,6 @@ artfold=$artfold</properties>
         <testTimeMargin>3000</testTimeMargin>
       </extraConfiguration>
     </xunit>
-    <hudson.plugins.emailext.ExtendedEmailPublisher plugin="email-ext@2.57.1">
-      <recipientList>$DEFAULT_RECIPIENTS</recipientList>
-      <configuredTriggers>
-        <hudson.plugins.emailext.plugins.trigger.FailureTrigger>
-          <email>
-            <subject>$PROJECT_DEFAULT_SUBJECT</subject>
-            <body>$PROJECT_DEFAULT_CONTENT</body>
-            <recipientProviders>
-              <hudson.plugins.emailext.plugins.recipients.DevelopersRecipientProvider/>
-            </recipientProviders>
-            <attachmentsPattern></attachmentsPattern>
-            <attachBuildLog>false</attachBuildLog>
-            <compressBuildLog>false</compressBuildLog>
-            <replyTo>$PROJECT_DEFAULT_REPLYTO</replyTo>
-            <contentType>project</contentType>
-          </email>
-        </hudson.plugins.emailext.plugins.trigger.FailureTrigger>
-        <hudson.plugins.emailext.plugins.trigger.SuccessTrigger>
-          <email>
-            <subject>$PROJECT_DEFAULT_SUBJECT</subject>
-            <body>$PROJECT_DEFAULT_CONTENT</body>
-            <recipientProviders>
-              <hudson.plugins.emailext.plugins.recipients.DevelopersRecipientProvider/>
-            </recipientProviders>
-            <attachmentsPattern></attachmentsPattern>
-            <attachBuildLog>false</attachBuildLog>
-            <compressBuildLog>false</compressBuildLog>
-            <replyTo>$PROJECT_DEFAULT_REPLYTO</replyTo>
-            <contentType>project</contentType>
-          </email>
-        </hudson.plugins.emailext.plugins.trigger.SuccessTrigger>
-      </configuredTriggers>
-      <contentType>default</contentType>
-      <defaultSubject>$DEFAULT_SUBJECT</defaultSubject>
-      <defaultContent>$DEFAULT_CONTENT</defaultContent>
-      <attachmentsPattern></attachmentsPattern>
-      <presendScript>$DEFAULT_PRESEND_SCRIPT</presendScript>
-      <postsendScript></postsendScript>
-      <attachBuildLog>false</attachBuildLog>
-      <compressBuildLog>false</compressBuildLog>
-      <replyTo>$DEFAULT_REPLYTO</replyTo>
-      <saveOutput>false</saveOutput>
-      <disabled>false</disabled>
-    </hudson.plugins.emailext.ExtendedEmailPublisher>
-    <hudson.plugins.logparser.LogParserPublisher plugin="log-parser@2.0">
-      <unstableOnWarning>false</unstableOnWarning>
-      <failBuildOnError>true</failBuildOnError>
-      <showGraphs>true</showGraphs>
-      <parsingRulesPath>c:/jenkins/tmp/minimal_rules</parsingRulesPath>
-      <useProjectRule>false</useProjectRule>
-    </hudson.plugins.logparser.LogParserPublisher>
   </publishers>
   <buildWrappers>
     <hudson.plugins.ws__cleanup.PreBuildCleanup plugin="ws-cleanup@0.32">
@@ -226,15 +145,15 @@ artfold=$artfold</properties>
     </hudson.plugins.ws__cleanup.PreBuildCleanup>
     <org.jvnet.hudson.tools.versionnumber.VersionNumberBuilder plugin="versionnumber@1.8.1">
       <versionNumberString>0.0.${BUILD_ID}</versionNumberString>
-      <projectStartDate>2016-04-21 04:00:00.0 UTC</projectStartDate>
+      <projectStartDate>1969-12-31 05:00:00.0 UTC</projectStartDate>
       <environmentVariableName>VERSION</environmentVariableName>
-      <environmentPrefixVariable>Dev</environmentPrefixVariable>
+      <environmentPrefixVariable></environmentPrefixVariable>
       <oBuildsToday></oBuildsToday>
       <oBuildsThisWeek></oBuildsThisWeek>
       <oBuildsThisMonth></oBuildsThisMonth>
       <oBuildsThisYear></oBuildsThisYear>
       <oBuildsAllTime></oBuildsAllTime>
-      <skipFailedBuilds>true</skipFailedBuilds>
+      <skipFailedBuilds>false</skipFailedBuilds>
       <useAsBuildDisplayName>true</useAsBuildDisplayName>
     </org.jvnet.hudson.tools.versionnumber.VersionNumberBuilder>
   </buildWrappers>

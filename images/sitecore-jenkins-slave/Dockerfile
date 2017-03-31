@@ -5,7 +5,7 @@ SHELL ["powershell", "-NoProfile", "-Command", "$ErrorActionPreference = 'Stop';
 
 # Note: Add .NET + ASP.NET
 RUN Install-WindowsFeature NET-Framework-45-ASPNET ; \
-    Install-WindowsFeature Web-Asp-Net45; 
+    Install-WindowsFeature Web-Asp-Net45;
 
 # # Note: Get MSBuild 12.
 # RUN Invoke-WebRequest "https://download.microsoft.com/download/9/B/B/9BB1309E-1A8F-4A47-A6C5-ECF76672A3B3/BuildTools_Full.exe" -OutFile "$env:TEMP\BuildTools_Full.exe" -UseBasicParsing; \
@@ -61,10 +61,25 @@ RUN Invoke-WebRequest "https://repo.jenkins-ci.org/public/org/jenkins-ci/main/je
 
 WORKDIR c:/
 
+# Note: Install TDS
+ENV TDS_VERSION 5.6.0.13
+ENV VS_VERSION VS2015
+
+RUN $version = "$env:TDS_VERSION" -replace '\.', ''; \
+    Invoke-WebRequest "https://www.teamdevelopmentforsitecore.com/-/media/TDS/Files/TDS%20Downloads/TDS%20$version.ashx" -OutFile "$env:TEMP/tds.zip" -UseBasicParsing; \
+    Expand-Archive "$env:TEMP/tds.zip" -Destination "$env:TEMP/tds"; \
+    Start-Process -FilePath "$env:TEMP/tds/$env:TDS_VERSION/HedgehogDevelopmentTDS_$env:VS_VERSION.msi" -ArgumentList '/quiet', '/norestart', '/l*', "$env:TEMP/tds.log" -PassThru | Wait-Process -Timeout 30 -ErrorAction SilentlyContinue; \
+    Get-Process | ? {$_.ProcessName -eq 'msiexec'} | Stop-Process -Force; \
+    dir "$env:TEMP" | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
+
 ENV JENKINS_MASTER_HOST 'jenkins-master'
 ENV JENKINS_AGENT_ID '00'
 
 # Copy Scripts
 ADD scripts /scripts
+
+ADD win2016/sources/sxs /sources/sxs
+RUN Install-WindowsFeature -Name NET-Framework-Features -Source c:\sources\sxs -Restart:$false ;\
+    Remove-Item /sources -Force -Recurse -ErrorAction SilentlyContinue
 
 CMD [ "powershell", "c:/scripts/startup.ps1" ]

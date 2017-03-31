@@ -33,7 +33,7 @@ if(Test-Path 'c:/scripts/plugins.txt') {
             $plugin = $_
             $url = "$env:JENKINS_UC/download/plugins/$plugin/latest/${plugin}.hpi"
 
-            if (Test-Path "c:/jenkins/plugins/${plugin}.jpi") {
+            if (Test-Path "c:/jenkins/plugins") {
                 Write-Host "Skipping plugin:`t[$plugin]"
             }
             else {
