@@ -25,7 +25,7 @@ services:
     links: 
       - jm
     depends_on: 
-      - jm
+      - js0
     environment:
       JENKINS_AGENT_ID: 1
       JENKINS_MASTER_HOST: jm
