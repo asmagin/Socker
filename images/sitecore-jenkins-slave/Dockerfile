@@ -26,6 +26,9 @@ RUN \
     Expand-Archive './nupkg.zip' -Destination './nupkg' -Verbose; \
     New-Item -ItemType Directory -Force -Path 'c:/Program Files (x86)/MSBuild/HedgehogDevelopment/SitecoreProject/v9.0'; \
     mv './nupkg/build/*' 'c:/Program Files (x86)/MSBuild/HedgehogDevelopment/SitecoreProject/v9.0'; \
+    cd 'c:/Program Files (x86)/MSBuild/HedgehogDevelopment/SitecoreProject/v9.0'; \
+    # targets file references in TDS project named differently
+    Copy-Item './HedgehogDevelopment.TDS.targets' -Destination './HedgehogDevelopment.SitecoreProject.targets'; \
     cd / ; \
     dir "$env:TEMP" | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue;
 
