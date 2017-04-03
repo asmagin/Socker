@@ -13,8 +13,11 @@ RUN \
 
 # Note: Install TDS
 RUN \
+    # TODO: refactor with docker ENV after 1.4 release.
     if (-not($env:TDS_VERSION)) { $env:TDS_VERSION = '5.6.0.13' }; \
+    if (-not($env:TDS_VERSION)) { [Environment]::SetEnvironmentVariable('TDS_VERSION', $env:TDS_VERSION, 'Machine') }; \
     if (-not($env:VS_VERSION)) { $env:VS_VERSION = 'VS2015' }; \
+    if (-not($env:VS_VERSION)) { [Environment]::SetEnvironmentVariable('VS_VERSION', $env:VS_VERSION, 'Machine') }; \
     $version = "$env:TDS_VERSION" -replace '\.', ''; \
     $url = 'https://www.teamdevelopmentforsitecore.com/-/media/TDS/Files/TDS%20Downloads/TDS%20{0}.ashx' -f $version; \
     cd $env:TEMP; \
