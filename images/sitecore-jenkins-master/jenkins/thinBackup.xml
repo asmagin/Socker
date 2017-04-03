@@ -2,7 +2,7 @@
 <org.jvnet.hudson.plugins.thinbackup.ThinBackupPluginImpl plugin="thinBackup@1.9">
   <fullBackupSchedule>H/5 * * * *</fullBackupSchedule>
   <diffBackupSchedule>H/1 * * * *</diffBackupSchedule>
-  <backupPath>c:\host\out</backupPath>
+  <backupPath>c:\backups</backupPath>
   <nrMaxStoredFull>20</nrMaxStoredFull>
   <excludedFilesRegex></excludedFilesRegex>
   <waitForIdle>false</waitForIdle>
