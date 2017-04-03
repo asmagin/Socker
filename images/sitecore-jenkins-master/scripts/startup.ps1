@@ -18,12 +18,8 @@ Write-Host "= = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
 
 
 # Note: move default files to attached volume after the start of container
-if(Test-Path 'c:/temp'){
-    if(-not(Test-Path 'c:/jenkins/*')){
-        Copy-Item 'c:/temp/*' -Destination 'c:/jenkins/' -Recurse -Force
-    }
-    
-    Remove-Item 'c:/temp' -Recurse -Force
+if(Test-Path 'c:/host/in'){
+    Copy-Item 'c:/host/in/*' -Destination 'c:/jenkins/' -Recurse -Force
 }
 
 # Note: download plugins
