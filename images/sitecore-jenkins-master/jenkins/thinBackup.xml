@@ -13,8 +13,8 @@
   <backupBuildArchive>false</backupBuildArchive>
   <backupPluginArchives>false</backupPluginArchives>
   <backupUserContents>false</backupUserContents>
-  <backupAdditionalFiles>true</backupAdditionalFiles>
-  <backupAdditionalFilesRegex>^(secrets|.*\.key|.*\.KEY|initialAdminPassword)$</backupAdditionalFilesRegex>
+  <backupAdditionalFiles>false</backupAdditionalFiles>
+  <backupAdditionalFilesRegex></backupAdditionalFilesRegex>
   <backupNextBuildNumber>false</backupNextBuildNumber>
   <backupBuildsToKeepOnly>false</backupBuildsToKeepOnly>
 </org.jvnet.hudson.plugins.thinbackup.ThinBackupPluginImpl>

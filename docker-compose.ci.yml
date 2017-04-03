@@ -5,7 +5,7 @@ services:
     image: epam/sitecore-jenkins-master
     volumes:
       - d:\temp:c:\backups
-    mem_limit: 1024m
+    mem_limit: 2048m
 
   js0:
     image: epam/sitecore-jenkins-slave
