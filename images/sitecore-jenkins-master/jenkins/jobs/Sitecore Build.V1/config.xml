@@ -6,8 +6,8 @@
   <properties>
     <jenkins.model.BuildDiscarderProperty>
       <strategy class="hudson.tasks.LogRotator">
-        <daysToKeep>-1</daysToKeep>
-        <numToKeep>20</numToKeep>
+        <daysToKeep>7</daysToKeep>
+        <numToKeep>7</numToKeep>
         <artifactDaysToKeep>-1</artifactDaysToKeep>
         <artifactNumToKeep>-1</artifactNumToKeep>
       </strategy>
@@ -18,7 +18,7 @@
     <userRemoteConfigs>
       <hudson.plugins.git.UserRemoteConfig>
         <url>https://github.com/asmagin/epam-dev-days.git</url>
-        <credentialsId>asmagin</credentialsId>
+        <credentialsId>GitHub</credentialsId>
       </hudson.plugins.git.UserRemoteConfig>
     </userRemoteConfigs>
     <branches>
@@ -50,16 +50,12 @@
       <replacementPattern></replacementPattern>
     </org.jenkinsci.plugins.changeassemblyversion.ChangeAssemblyVersion>
     <hudson.plugins.powershell.PowerShell plugin="powershell@1.3">
-      <command>$VERSION = $env:VERSION
-$commit = $env:GIT_COMMIT
-$branch = $env:GIT_BRANCH
-$git= $env:GIT_URL
-
-./ci/deploy.ps1 version-file -сommit $commit -branch $branch -git $git -version $VERSION
-
+      <command>./ci/deploy.ps1 version-file -сommit $env:GIT_COMMIT -branch $env:GIT_BRANCH -git $env:GIT_URL -version $env:VERSION
+./ci/deploy.ps1 update-assembly
+./ci/deploy.ps1 update-assembly
 ./ci/deploy.ps1 restore-nuget
 ./ci/deploy.ps1 build-solution
-./ci/deploy.ps1 unit-tests
+./ci/deploy.ps1 xunit-tests
 ./ci/deploy.ps1 code-analysis
 ./ci/deploy.ps1 pack-files
 ./ci/deploy.ps1 pack-update-packages</command>

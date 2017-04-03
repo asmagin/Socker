@@ -1,0 +1,107 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@2.10">
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <jenkins.model.BuildDiscarderProperty>
+      <strategy class="hudson.tasks.LogRotator">
+        <daysToKeep>7</daysToKeep>
+        <numToKeep>5</numToKeep>
+        <artifactDaysToKeep>-1</artifactDaysToKeep>
+        <artifactNumToKeep>-1</artifactNumToKeep>
+      </strategy>
+    </jenkins.model.BuildDiscarderProperty>
+    <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
+      <triggers>
+        <hudson.triggers.SCMTrigger>
+          <spec>H/5 * * * *</spec>
+          <ignorePostCommitHooks>false</ignorePostCommitHooks>
+        </hudson.triggers.SCMTrigger>
+      </triggers>
+    </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
+  </properties>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.29">
+    <script>#!groovy
+
+pipeline{
+    agent {
+        node {
+            label &apos;windows&apos;
+        }
+    }
+
+    stages {
+        stage(&apos;Checkout&apos;) {
+            steps {
+                git branch: &apos;no-private-packages&apos;, credentialsId: &apos;GitHub&apos;, url: &apos;https://github.com/asmagin/epam-dev-days.git&apos;
+            }
+        }
+        stage(&apos;Prepare&apos;) {
+            steps {
+                script {
+                    env.VERSION = VersionNumber versionNumberString: &apos;${BUILD_ID}&apos;, versionPrefix: &apos;0.0.&apos;
+                    currentBuild.displayName =  &apos;#&apos; + env.VERSION
+                }
+
+                bat &apos;powershell -command ./ci/deploy.ps1 version-file -commit $env:GIT_COMMIT -branch $env:GIT_BRANCH -git $env:GIT_URL -version $env:VERSION&apos;
+                
+                bat &apos;powershell -command ./ci/deploy.ps1 update-assembly&apos;
+                bat &apos;powershell -command ./ci/deploy.ps1 restore-nuget&apos;
+            }
+        }
+        stage(&apos;Build&apos;) {
+            steps {
+                bat &apos;powershell -command ./ci/deploy.ps1 build-solution&apos;
+            }
+        }
+        stage(&apos;Unit Tests&apos;) {
+            steps {
+                bat &apos;powershell -command ./ci/deploy.ps1 xunit-tests&apos;
+
+                // junit &apos;*.Tests.xml&apos;
+                // step([$class: &apos;XUnitPublisher&apos;, 
+                //     types: [
+                //         [NUnitJunitHudsonTestType : [pattern: &apos;*.Tests.xml&apos;, skipNoTestFiles: &apos;true&apos;, failIfNotNew: &apos;false&apos;, deleteOutputFiles: &apos;true&apos;, stopProcessingIfError: true]]
+                //     ],
+                //     thresholds: [
+                //         [$class: &apos;FailedThreshold&apos;, unstableThreshold: &apos;5&apos;]
+                //     ]
+                // ])
+
+                step([
+                    $class: &apos;XUnitPublisher&apos;,
+                    testTimeMargin: &apos;3000&apos;,
+                    thresholdMode: 1,
+                    thresholds: [
+                        [$class: &apos;FailedThreshold&apos;, failureNewThreshold: &apos;0&apos;, failureThreshold: &apos;0&apos;, unstableNewThreshold: &apos;0&apos;, unstableThreshold: &apos;0&apos;],
+                        [$class: &apos;SkippedThreshold&apos;, failureNewThreshold: &apos;0&apos;, failureThreshold: &apos;0&apos;, unstableNewThreshold: &apos;0&apos;, unstableThreshold: &apos;0&apos;]
+                    ],
+                    tools: [
+                        [$class: &apos;XUnitDotNetTestType&apos;, deleteOutputFiles: true, failIfNotNew: false, pattern: &apos;*.Tests.xml&apos;, skipNoTestFiles: true, stopProcessingIfError: true]
+                    ]
+                ])
+
+                // step([$class: &apos;XUnitBuilder&apos;,
+                //     thresholds: [[$class: &apos;FailedThreshold&apos;, unstableThreshold: &apos;1&apos;]],
+                //     tools: [[$class: &apos;JUnitType&apos;, pattern: &apos;*.Tests.xml&apos;]]])
+            }
+        }
+        stage(&apos;Analyze&apos;) {
+            steps {
+                bat &apos;powershell -command ./ci/deploy.ps1 code-analysis&apos;
+            }
+        }
+        stage(&apos;Package Artifacts&apos;) {
+            steps {
+                bat &apos;powershell -command ./ci/deploy.ps1 pack-files&apos;
+                bat &apos;powershell -command ./ci/deploy.ps1 pack-update-packages&apos;
+                archive &quot;artifacts/${env.VERSION}/*.zip&quot;
+            }
+        }
+    }
+}</script>
+    <sandbox>true</sandbox>
+  </definition>
+  <triggers/>
+</flow-definition>

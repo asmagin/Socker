@@ -31,7 +31,9 @@
       <providerId></providerId>
     </org.jenkinsci.plugins.displayurlapi.user.PreferredProviderUserProperty>
     <hudson.model.PaneStatusProperties>
-      <collapsed/>
+      <collapsed>
+        <string>executors</string>
+      </collapsed>
     </hudson.model.PaneStatusProperties>
     <hudson.security.HudsonPrivateSecurityRealm_-Details>
       <passwordHash>#jbcrypt:$2a$10$tfNdLBpRT2Yb7Djyl2sQWev.Ue1t5ZRmcM2Q/0H3crLnG19CBXb2W</passwordHash>
@@ -42,5 +44,39 @@
     <hudson.search.UserSearchProperty>
       <insensitiveSearch>false</insensitiveSearch>
     </hudson.search.UserSearchProperty>
+    <com.cloudbees.plugins.credentials.UserCredentialsProvider_-UserCredentialsProperty plugin="credentials@2.1.13">
+      <domainCredentialsMap class="hudson.util.CopyOnWriteMap$Hash">
+        <entry>
+          <com.cloudbees.plugins.credentials.domains.Domain>
+            <specifications/>
+          </com.cloudbees.plugins.credentials.domains.Domain>
+          <java.util.concurrent.CopyOnWriteArrayList/>
+        </entry>
+      </domainCredentialsMap>
+    </com.cloudbees.plugins.credentials.UserCredentialsProvider_-UserCredentialsProperty>
+    <hudson.plugins.favorite.user.FavoriteUserProperty plugin="favorite@2.0.4">
+      <data class="concurrent-hash-map">
+        <entry>
+          <string>Sitecore Build.V2 Multi-Branch</string>
+          <boolean>true</boolean>
+        </entry>
+        <entry>
+          <string>Multi Build/master</string>
+          <boolean>false</boolean>
+        </entry>
+        <entry>
+          <string>Sitecore Build</string>
+          <boolean>true</boolean>
+        </entry>
+        <entry>
+          <string>Sitecore Build.V1</string>
+          <boolean>false</boolean>
+        </entry>
+        <entry>
+          <string>TBD Deployment</string>
+          <boolean>false</boolean>
+        </entry>
+      </data>
+    </hudson.plugins.favorite.user.FavoriteUserProperty>
   </properties>
 </user>
