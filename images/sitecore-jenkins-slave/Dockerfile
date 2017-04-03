@@ -35,11 +35,4 @@ RUN \
     cd / ; \
     dir "$env:TEMP" | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue;
 
-# Note: Set defaults for slave and copy scripts
-RUN \
-    $env:JENKINS_MASTER_HOST = 'jm'; \
-    $env:JENKINS_AGENT_ID = '00'
-
-COPY scripts /scripts
-
 CMD [ "powershell", "c:/scripts/startup.ps1" ]
