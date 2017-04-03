@@ -4,9 +4,8 @@ services:
   jm:
     image: epam/sitecore-jenkins-master
     volumes:
-      - d:\.projects\oss\Socker\.tmp\in:c:\host\in
-      - d:\.projects\oss\Socker\.tmp\out:c:\host\out
-    mem_limit: 2048m
+      - d:\temp:c:\backups
+    mem_limit: 1024m
 
   js0:
     image: epam/sitecore-jenkins-slave
